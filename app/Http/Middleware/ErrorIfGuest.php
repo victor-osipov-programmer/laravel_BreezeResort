@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Exceptions\Unauthorized;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -16,12 +17,10 @@ class ErrorIfGuest
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // $request->headers->set('Accept', 'application/json');
-
         if (Auth::check()) {
             return $next($request);
         } else {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            throw new Unauthorized();
         }
     }
 }

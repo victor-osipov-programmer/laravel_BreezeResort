@@ -1,7 +1,6 @@
 <?php
 
-use App\Http\Middleware\ErrorIfGuest;
-use App\Http\Middleware\ResponseOnlyJSON;
+use App\Exceptions\GeneralError;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -14,8 +13,16 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        $middleware->prepend(ResponseOnlyJSON::class);
+
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        $exceptions->shouldRenderJsonWhen(fn() => true);
+
+        $exceptions->render(function (GeneralError $e) {
+            return response()->json([
+                'error' => [
+                    'message' => $e->message
+                ]
+            ], $e->status);
+        });
     })->create();

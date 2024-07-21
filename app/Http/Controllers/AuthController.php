@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\Unauthorized;
 use App\Http\Middleware\ErrorIfGuest;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -9,9 +10,7 @@ use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
-// use Tymon\JWTAuth\Contracts\Providers\JWT;
 use Tymon\JWTAuth\Facades\JWTAuth;
-use Tymon\JWTAuth\JWT;
 
 class AuthController extends Controller implements HasMiddleware
 {
@@ -28,15 +27,12 @@ class AuthController extends Controller implements HasMiddleware
 
         $user = User::where('email', $data['email'])->where('password', $data['password'])->first();
         if (! $user) {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            throw new Unauthorized();
         }
         
         $token = JWTAuth::fromUser($user);
-        if (! $token) {
-            return response()->json(['error' => 'Unauthorized'], 401);
-        }
-
         Auth::login($user);
+
         return $this->respondWithToken($token);
     }
     public function logout() {
