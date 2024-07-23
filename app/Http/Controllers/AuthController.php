@@ -21,13 +21,13 @@ class AuthController extends Controller implements HasMiddleware
     }
     public function login(Request $request) {
         $data = $request->validate([
-            'email' => 'required|email',
+            'username' => 'required|string',
             'password' => 'required|string',
         ]);
 
-        $user = User::where('email', $data['email'])->where('password', $data['password'])->first();
+        $user = User::where('username', $data['username'])->where('password', $data['password'])->first();
         if (! $user) {
-            throw new Unauthorized();
+            throw new Unauthorized('Unauthorized', ['login' => 'invalid credentials']);
         }
         
         $token = JWTAuth::fromUser($user);
@@ -49,9 +49,9 @@ class AuthController extends Controller implements HasMiddleware
 
     public function respondWithToken($token) {
         return response()->json([
-            'access_token' => $token,
-            'token_type' => 'bearer',
-            'expires_in' => Config::get('jwt.ttl')
+            'data' => [
+                'token_user' => $token
+            ]
         ]);
     }
 }

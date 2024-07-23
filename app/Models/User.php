@@ -17,11 +17,7 @@ class User extends Authenticatable implements JWTSubject
      *
      * @var array<int, string>
      */
-    protected $fillable = [
-        'name',
-        'email',
-        'password',
-    ];
+    protected $guarded = false;
 
     /**
      * The attributes that should be hidden for serialization.
@@ -54,6 +50,11 @@ class User extends Authenticatable implements JWTSubject
     public function getJWTCustomClaims()
     {
         return [];
+    }
+
+
+    public function room() {
+        return $this->belongsTo(Room::class, 'id_childdata', 'id');
     }
     
 }

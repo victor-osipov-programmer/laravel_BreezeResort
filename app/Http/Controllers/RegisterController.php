@@ -10,20 +10,15 @@ class RegisterController extends Controller
     public function __invoke()
     {
         $data = request()->validate([
-            'name' => 'required|string',
-            'email' => 'required|email',
+            'username' => 'required|string',
             'password' => 'required|string',
         ]);
-
-        $user = User::create($data);
+        $data['role'] = 'admin';
         
+        $user = User::create($data);
 
         return response()->json([
-            'data' => [
-                'name' => $user->name,
-                'email' => $user->email
-            ],
-            'message' => 'created'
+            'data' => ['message' => 'Administrator created']
         ]);
     }
 }
