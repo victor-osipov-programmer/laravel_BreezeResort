@@ -23,48 +23,40 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withExceptions(function (Exceptions $exceptions) {
         $exceptions->shouldRenderJsonWhen(fn() => true);
 
-        $exceptions->render(function (Unauthorized $e) {
-            $json = [
+        function getJSONError($message)
+        {
+            return [
                 'error' => [
-                    'message' => $e->message
+                    'message' => $message
                 ]
             ];
+        }
+
+        $exceptions->render(function (Unauthorized $e) {
+            $json = getJSONError($e->message);
             if (count($e->errors) !== 0) {
                 $json = [
                     'message' => $e->message,
                     'errors' => $e->errors
                 ];
             }
+            
             return response()->json($json, $e->status);
         });
+
         $exceptions->render(function (GeneralError $e) {
-            return response()->json([
-                'error' => [
-                    'message' => $e->message
-                ]
-            ], $e->status);
+            return response()->json(getJSONError($e->message), $e->status);
         });
 
         $exceptions->render(function (AccessDeniedHttpException $e) {
             if (Auth::check()) {
-                return response()->json([
-                    'error' => [
-                        'message' => 'Forbidden'
-                    ]
-                ], 403);
+                return response()->json(getJSONError('Forbidden'), 403);
             } else {
-                return response()->json([
-                    'error' => [
-                        'message' => 'Unauthorized'
-                    ]
-                ], 401);
+                return response()->json(getJSONError('Unauthorized'), 401);
             }
         });
+        
         $exceptions->render(function (NotFoundHttpException $e) {
-            return response()->json([
-                'error' => [
-                    'message' => 'Not found'
-                ]
-            ], 404);
+            return response()->json(getJSONError('Not found'), 404);
         });
     })->create();

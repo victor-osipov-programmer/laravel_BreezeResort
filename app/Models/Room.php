@@ -9,9 +9,7 @@ class Room extends Model
 {
     use HasFactory;
 
-
     protected $guarded = false;
-
 
     public function users() {
         return $this->hasMany(User::class, 'id_childdata', 'id');
