@@ -9,6 +9,20 @@ use Illuminate\Support\Facades\Gate;
 
 class UserController extends Controller
 {
+    public function createAdministrator()
+    {
+        $data = request()->validate([
+            'username' => 'required|string',
+            'password' => 'required|string',
+        ]);
+        $data['role'] = 'admin';
+        
+        User::create($data);
+
+        return response()->json([
+            'data' => ['message' => 'Administrator created']
+        ]);
+    }
     /**
      * Display a listing of the resource.
      */
